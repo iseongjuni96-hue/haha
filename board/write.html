@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>글쓰기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+        }
+        nav {
+            padding: 25px 10px 15px 10px;
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+        }
+        nav a {
+            color: #333;
+            margin: 0 10px;
+            font-weight: bold;
+            background-color: rgb(247, 247, 247);
+            padding: 5px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-sizing: border-box;
+            display: inline-block;
+        }
+        nav a:hover {
+            background-color: bisque;
+        }
+        .user-nav-box {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-greeting {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .btn-logout-nav {
+            background-color: #dc3545 !important;
+            color: white !important;
+            margin: 0;
+        }
+        .btn-logout-nav:hover {
+            background-color: #c82333 !important;
+            color: #ffffff !important;
+        }
+
+        main {
+            width: 800px;
+            margin: 30px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea, input[type="file"] {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px 0;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[readonly] {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+        button, .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .save { background-color: #007bff; color: white; }
+        .btn { background-color: #555; color: white; }
+
+        /* 드래그 앤 드롭 영역 */
+        .drop-zone {
+            border: 2px dashed #007bff;
+            border-radius: 6px;
+            padding: 20px;
+            text-align: center;
+            background-color: #f8f9fa;
+            color: #6c757d;
+            margin-bottom: 15px;
+            transition: background-color 0.2s, border-color 0.2s;
+            cursor: pointer;
+        }
+        .drop-zone.dragover {
+            background-color: #e7f3ff;
+            border-color: #0056b3;
+            color: #0056b3;
+        }
+
+        /* 미리보기 영역 컨테이너 */
+        .paste-wrapper {
+            text-align: center;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+
+        .paste-info {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+        .paste-info img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 6px;
+            display: block;
+            margin-top: 8px;
+            border: 1px dashed #28a745;
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .paste-text {
+            font-size: 13px;
+            color: #28a745;
+            font-weight: bold;
+            text-align: center;
+            word-break: break-all;
+        }
+        .file-icon-box {
+            margin-top: 8px;
+            padding: 10px 20px;
+            background: #e9ecef;
+            border-radius: 6px;
+            border: 1px solid #ced4da;
+            color: #495057;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">홈(메인 페이지)</a>
+        <a href="/board/rule.html">규칙</a>
+        <a href="/board/list.html">게시판</a>
+        <a href="/board/write.html">글쓰기</a>
+        <span id="auth-area">
+            <a href="/board/login.html">로그인</a>
+        </span>
+    </nav>
+
+    <main>
+        <h2>새 글 작성</h2>
+        <form id="write-form">
+            <label>제목 (최대 62자)</label>
+            <input type="text" id="title" required maxlength="62" placeholder="제목을 입력하세요 (최대 62자)">
+
+            <label>작성자</label>
+            <input type="text" id="writer" required placeholder="작성자 이름">
+
+            <label>내용</label>
+            <textarea id="content" rows="8" required placeholder="내용을 입력하세요."></textarea>
+
+            <label>파일 / 이미지 첨부</label>
+            <div id="drop-zone" class="drop-zone">
+                마우스로 사진이나 파일을 여기에 끌어다 놓거나 (Drag & Drop)<br>
+                복사 후 <b>Ctrl+V</b>로 붙여넣기할 수 있습니다.
+            </div>
+            
+            <input type="file" id="file" style="display: none;">
+
+            <div class="paste-wrapper">
+                <div id="paste-msg" class="paste-info"></div>
+            </div>
+
+            <button type="submit" class="save">등록하기</button>
+            <a class="btn" href="/board/list.html">취소</a>
+        </form>
+    </main>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const isLoggedIn = checkAuthAndInit();
+            if (isLoggedIn) {
+                checkLoginState();
+            }
+            initDragAndDrop();
+        });
+
+        function checkAuthAndInit() {
+            const savedUser = localStorage.getItem("user");
+
+            if (!savedUser) {
+                alert("로그인이 필요한 서비스입니다.");
+                location.href = "/board/login.html";
+                return false;
+            }
+
+            const user = JSON.parse(savedUser);
+            const userName = user.name || user.userid || user.username || user.id;
+
+            const writerInput = document.getElementById("writer");
+            if (userName) {
+                writerInput.value = userName;
+                writerInput.readOnly = true;
+            }
+
+            return true;
+        }
+
+        function checkLoginState() {
+            const savedUser = localStorage.getItem("user");
+            const authArea = document.getElementById("auth-area");
+
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                const userName = user.name || user.userid || user.username || user.id;
+
+                authArea.innerHTML = `
+                    <div class="user-nav-box">
+                        <span class="user-greeting">${userName}님 환영합니다!</span>
+                        <a onclick="handleLogout()" class="btn-logout-nav">로그아웃</a>
+                    </div>
+                `;
+            }
+        }
+
+        function handleLogout() {
+            if (confirm("로그아웃 하시겠습니까?")) {
+                localStorage.removeItem("user");
+                alert("로그아웃 되었습니다.");
+                location.href = "/board/login.html";
+            }
+        }
+
+        // 새 파일이 들어오면 기존 파일을 새로운 파일로 '덮어쓰기'하는 핵심 함수
+        function processFile(file) {
+            if (!file) return;
+
+            // 1. DataTransfer 객체 생성 후 '새 파일 1개만' 새로 설정 (교체)
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            
+            const fileInput = document.getElementById("file");
+            fileInput.files = dataTransfer.files;
+
+            // 2. 미리보기 영역 초기화 후 새 미리보기 출력
+            const msgBox = document.getElementById("paste-msg");
+            msgBox.innerHTML = ""; // 기존 미리보기 제거
+
+            const isImage = file.type.startsWith("image/");
+            const fileSizeStr = (file.size / 1024).toFixed(1) + " KB";
+
+            if (isImage) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    msgBox.innerHTML = `
+                        <div class="paste-text"> 이미지 파일이 새 파일로 변경되었습니다! (${file.name}, ${fileSizeStr})</div>
+                        <img src="${event.target.result}" alt="미리보기">
+                    `;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                msgBox.innerHTML = `
+                    <div class="paste-text"> 일반 파일이 새 파일로 변경되었습니다! (${fileSizeStr})</div>
+                    <div class="file-icon-box">${file.name}</div>
+                `;
+            }
+        }
+
+        // Ctrl + V 붙여넣기 이벤트 핸들러
+        document.addEventListener('paste', function(e) {
+            const clipboardData = e.clipboardData;
+            if (!clipboardData) return;
+
+            // 1. 파일 복사(Ctrl+C) 후 Ctrl+V 한 파일 객체가 있는 경우
+            if (clipboardData.files && clipboardData.files.length > 0) {
+                const file = clipboardData.files[0];
+                processFile(file);
+                return;
+            }
+
+            // 2. 캡처 이미지나 이미지 복사 붙여넣기 처리
+            const items = clipboardData.items;
+            if (!items) return;
+
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].kind === 'file') {
+                    const file = items[i].getAsFile();
+                    if (file) {
+                        processFile(file);
+                        break;
+                    }
+                }
+            }
+        });
+
+        // 드래그 앤 드롭 (Drag & Drop) 처리
+        function initDragAndDrop() {
+            const dropZone = document.getElementById("drop-zone");
+
+            // 드롭존 클릭 시 일반 파일 선택창 열기
+            dropZone.addEventListener("click", () => {
+                document.getElementById("file").click();
+            });
+
+            // 페이지 전체 기본 드래그 동작 방지
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                document.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // 드래그 들어왔을 때 / 나갔을 때 스타일 변경
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+            });
+
+            // 마우스 drop 시 처리 (가장 최근 끌어온 파일로 교체)
+            dropZone.addEventListener('drop', (e) => {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+
+                if (files && files.length > 0) {
+                    processFile(files[0]);
+                }
+            });
+        }
+
+        // 파일 선택 버튼으로 파일이 변경된 경우
+        document.getElementById("file").addEventListener("change", function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                processFile(file);
+            }
+        });
+
+        // 폼 제출 (저장하기)
+        document.getElementById("write-form").addEventListener("submit", function(e) {
+            e.preventDefault();
+
+            const savedUser = localStorage.getItem("user");
+            if (!savedUser) {
+                alert("로그인 세션이 만료되었습니다. 다시 로그인해주세요.");
+                location.href = "/board/login.html";
+                return;
+            }
+
+            const title = document.getElementById("title").value;
+            if (title.length > 62) {
+                alert("제목은 최대 62자까지만 입력 가능합니다.");
+                return;
+            }
+
+            const writer = document.getElementById("writer").value;
+            const content = document.getElementById("content").value;
+            const fileInput = document.getElementById("file");
+
+            const formData = new FormData();
+            formData.append("title", title);
+            formData.append("writer", writer);
+            formData.append("content", content);
+
+            // 최종적으로 등록된 1개의 최신 파일만 서버로 전달
+            if (fileInput.files[0]) {
+                formData.append("file", fileInput.files[0]);
+            }
+
+            fetch("/api/boards", {
+                method: "POST",
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert("글이 성공적으로 등록되었습니다.");
+                    location.href = "/board/list.html";
+                } else {
+                    alert("글 등록에 실패했습니다.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("서버 통신 오류가 발생했습니다.");
+            });
+        });
+    </script>
+</body>
+</html>

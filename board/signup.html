@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        .signup-container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 320px;
+        }
+
+        .signup-container h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .input-group {
+            margin-bottom: 15px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .btn-signup {
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-signup:hover {
+            background-color: #218838;
+        }
+
+        .bottom-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .bottom-link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .bottom-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="signup-container">
+    <h2>회원가입</h2>
+    <form id="signup-form">
+        <div class="input-group">
+            <label for="signup-id">아이디</label>
+            <input type="text" id="signup-id" placeholder="아이디 입력" required>
+        </div>
+        
+        <div class="input-group">
+            <label for="signup-pw">비밀번호</label>
+            <input type="password" id="signup-pw" placeholder="비밀번호 입력" required>
+        </div>
+        
+        <div class="input-group">
+            <label for="signup-name">이름</label>
+            <!-- 이름 30자 제한 적용 -->
+            <input type="text" id="signup-name" placeholder="이름 입력 (최대 30자)" maxlength="30" required>
+        </div>
+
+        <div class="input-group">
+            <label for="signup-birth">생년월일 (6자리)</label>
+            <input type="text" id="signup-birth" placeholder="예: 080306" maxlength="6" required>
+        </div>
+        
+        <button type="button" class="btn-signup" onclick="handleSignup()">가입하기</button>
+    </form>
+
+    <div class="bottom-link">
+        이미 계정이 있으신가요? <a href="/board/login.html">로그인 하러가기</a>
+    </div>
+</div>
+
+<script>
+function handleSignup() {
+    const userid = document.getElementById("signup-id").value.trim();
+    const password = document.getElementById("signup-pw").value;
+    const name = document.getElementById("signup-name").value.trim();
+    const birthdate = document.getElementById("signup-birth").value.trim();
+
+    if(!userid || !password || !name || !birthdate) {
+        alert("모든 필수 항목을 입력해주세요.");
+        return;
+    }
+
+    // 이름 30자 제한 검증
+    if (name.length > 30) {
+        alert("이름은 최대 30자까지만 입력 가능합니다.");
+        return;
+    }
+
+    if(birthdate.length !== 6) {
+        alert("생년월일은 6자리로 입력해 주세요. (예: 080306)");
+        return;
+    }
+
+    fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userid, password, name, birthdate })
+    })
+    .then(async res => {
+        const msg = await res.text();
+        if(res.ok) {
+            alert(msg);
+            location.href = "/board/login.html";
+        } else {
+            // 서버에서 중복 이름 등의 예외 메시지 반환 시 alert로 출력
+            alert(msg);
+        }
+    })
+    .catch(err => {
+        console.error("오류 발생:", err);
+        alert("회원가입 요청 중 오류가 발생했습니다.");
+    });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,970 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상세보기</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+        }
+        nav {
+            padding: 25px 10px 15px 10px;
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+        }
+        nav a {
+            color: #333;
+            margin: 0 10px;
+            font-weight: bold;
+            background-color: rgb(247, 247, 247);
+            padding: 5px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-sizing: border-box;
+            display: inline-block;
+        }
+        nav a:hover {
+            background-color: bisque;
+        }
+        .user-nav-box {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-greeting {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .btn-logout-nav {
+            background-color: #dc3545 ;
+            color: white ;
+            margin: 0 ;
+        }
+        .btn-logout-nav:hover {
+            background-color: #c82333 ;
+        }
+
+        main {
+            width: 800px;
+            margin: 30px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px 0;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        /* 수정 불가 상태일 때 스타일 */
+        input[readonly], textarea[readonly] {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        button, .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .edit { background-color: #4CAF50; color: white; }
+        .delete { background-color: #f44336; color: white; }
+        .btn { background-color: #555; color: white; }
+        
+        .reaction-box {
+            text-align: center;
+            margin: 25px 0;
+            padding: 15px;
+            background-color: #fafafa;
+            border-radius: 8px;
+            border: 1px solid #eee;
+        }
+        .btn-like {
+            background-color: #e7f3ff;
+            color: #007bff;
+            border: 1px solid #007bff;
+            font-size: 16px;
+            margin-right: 15px;
+        }
+        .btn-like:hover { background-color: #007bff; color: white; }
+        
+        .btn-dislike {
+            background-color: #ffebe9;
+            color: #dc3545;
+            border: 1px solid #dc3545;
+            font-size: 16px;
+        }
+        .btn-dislike:hover { background-color: #dc3545; color: white; }
+
+        .btn-like.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .btn-dislike.active {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .file-wrapper {
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .file-box {
+            display: inline-flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1px dashed #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            max-width: 100%;
+        }
+        .file-box img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 4px;
+            display: block;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* 댓글 영역 스타일 */
+        .comment-section {
+            margin-top: 30px;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+        .comment-form-container {
+            margin-bottom: 20px;
+        }
+        .comment-form {
+            display: flex;
+            gap: 10px;
+        }
+        .comment-form textarea {
+            flex: 1;
+            height: 70px;
+            margin: 0;
+            resize: none;
+            transition: border-color 0.2s;
+        }
+        .comment-form textarea.dragover {
+            border: 2px dashed #28a745;
+            background-color: #eef9f0;
+        }
+        .comment-form-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .comment-form button {
+            background-color: #28a745;
+            color: white;
+            white-space: nowrap;
+            height: 100%;
+        }
+        .comment-form button:hover {
+            background-color: #218838;
+        }
+        .btn-img-upload {
+            background-color: #6c757d;
+            color: white;
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+        }
+        .btn-img-upload:hover {
+            background-color: #5a6268;
+        }
+
+        /* 짤 이미지 미리보기 용 */
+        .comment-img-preview {
+            display: none;
+            position: relative;
+            margin-top: 8px;
+            width: fit-content;
+        }
+        .comment-img-preview img {
+            max-height: 100px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+        .comment-img-preview .btn-remove-preview {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            line-height: 18px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .comment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .comment-item {
+            background-color: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 12px 15px 8px 15px
+        }
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+        .comment-writer {
+            font-weight: bold;
+            color: #333;
+        }
+        .comment-edited-tag {
+            font-size: 11px;
+            color: #888;
+            margin-left: 4px;
+            font-weight: normal;
+        }
+        .comment-date {
+            color: #888;
+            font-variant-numeric: tabular-nums; /* 숫자 폭을 고정하여 초 단위가 바뀔 때 글자 흔들림 방지 */
+        }
+        .comment-content {
+            font-size: 14px;
+            color: #444;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .comment-image-attached {
+            max-width: 100%;
+            max-height: 120px;
+            border-radius: 6px;
+            margin-top: 8px;
+            display: block;
+        }
+        .btn-action-comment {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 0;
+            margin-left: 8px;
+        }
+        .btn-edit-comment {
+            color: #007bff;
+        }
+        .btn-edit-comment:hover {
+            text-decoration: underline;
+        }
+        .btn-delete-comment {
+            color: #dc3545;
+        }
+        .btn-delete-comment:hover {
+            text-decoration: underline;
+        }
+        
+        /* 댓글 수정 폼 스타일 */
+        .comment-edit-box {
+            margin-top: 8px;
+        }
+        .comment-edit-box textarea {
+            height: 60px;
+            margin-bottom: 5px;
+            resize: none;
+            
+        }
+        .comment-edit-btn-group {
+            display: flex;
+            justify-content: flex-end;
+            gap: 5px;
+        }
+        .btn-save-edit {
+            background-color: #28a745;
+            color: white;
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+        .btn-cancel-edit {
+            background-color: #6c757d;
+            color: white;
+            padding: 4px 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">홈(메인 페이지)</a>
+        <a href="/board/rule.html">규칙</a>
+        <a href="/board/list.html">게시판</a>
+        <a href="/board/write.html">글쓰기</a>
+        <span id="auth-area">
+            <a href="/board/login.html">로그인</a>
+        </span>
+    </nav>
+
+    <main>
+        <h2>게시글 상세보기</h2>
+        
+        <label>제목</label>
+        <input type="text" id="detail-title" readonly maxlength="62">
+        
+        <label>작성자</label>
+        <input type="text" id="detail-writer" readonly>
+        
+        <label>내용</label>
+        <textarea id="detail-content" rows="8" readonly></textarea>
+
+        <!-- 첨부 파일 / 이미지 표시 영역 -->
+        <div class="file-wrapper">
+            <div id="file-area" class="file-box" style="display: none;"></div>
+        </div>
+
+        <div class="reaction-box">
+            <button class="btn-like" id="like-btn">❤️ 좋아요 <span id="like-count">0</span></button>
+            <button class="btn-dislike" id="dislike-btn">💔 싫어요 <span id="dislike-count">0</span></button>
+        </div>
+
+        <!-- 댓글 영역 -->
+        <section class="comment-section">
+            <h3>댓글 (<span id="comment-count">0</span>)</h3>
+            <div class="comment-form-container">
+                <div class="comment-form">
+                    <textarea id="comment-input" placeholder="댓글을 입력하세요. (이미지 주소 URL, 이미지 파일 드래그앤드롭, 붙여넣기(Ctrl+V) 모두 가능)"></textarea>
+                    <div class="comment-form-actions">
+                        <label for="comment-file-input" class="btn-img-upload">짤 첨부</label>
+                        <input type="file" id="comment-file-input" accept="image/*" style="display:none;" onchange="handleFileSelect(event)">
+                        <button id="btn-add-comment" onclick="addComment()">등록</button>
+                    </div>
+                </div>
+                <!-- 이미지 첨부 미리보기 영역 -->
+                <div id="comment-img-preview" class="comment-img-preview">
+                    <img id="preview-img-src" src="" alt="짤 미리보기">
+                    <span class="btn-remove-preview" onclick="clearAttachedImage()">×</span>
+                </div>
+            </div>
+            <div id="comment-list" class="comment-list"></div>
+        </section>
+
+        <div style="margin-top: 25px;">
+            <button class="edit" id="update-board" style="display: none;">수정하기</button>
+            <button class="delete" id="delete-board" style="display: none;">삭제하기</button>
+            <a class="btn" href="/board/list.html">목록으로</a>
+        </div>
+    </main>
+
+    <script>
+        let currentBoardWriter = "";
+        let currentAttachedImageData = "";
+
+        const parms = new URLSearchParams(location.search);
+        const id = parms.get("id");
+
+        // 버튼 요소를 담을 변수 선언
+        let updateBoardBtn, deleteBoardBtn, likeBtn, dislikeBtn;
+        const countKey = `board_counts_${id}`;
+
+        document.addEventListener("DOMContentLoaded", function() {
+            // DOM 로드가 완료된 시점에 버튼 요소 연결
+            updateBoardBtn = document.getElementById("update-board");
+            deleteBoardBtn = document.getElementById("delete-board");
+            likeBtn = document.getElementById("like-btn");
+            dislikeBtn = document.getElementById("dislike-btn");
+
+            // 버튼 이벤트 리스너 안전하게 바인딩
+            if (updateBoardBtn) updateBoardBtn.addEventListener("click", updateBoard);
+            if (deleteBoardBtn) deleteBoardBtn.addEventListener("click", deleteBoard);
+            if (likeBtn) likeBtn.addEventListener("click", function() { sendReaction("like"); });
+            if (dislikeBtn) dislikeBtn.addEventListener("click", function() { sendReaction("dislike"); });
+
+            checkLoginState();
+            initCommentSection();
+            loadComments();
+            setupDragAndDropAndPaste();
+
+            // DOM 준비 후 안전하게 데이터 조회
+            loadBoardDetail();
+
+            // 1초마다 댓글 표시 시간을 리얼타임으로 갱신
+            setInterval(updateRealtimeDates, 1000);
+        });
+
+        // 게시글 데이터 불러오기 전용 함수
+        function loadBoardDetail() {
+            if (!id) return;
+
+            fetch("/api/boards/" + id)
+            .then(response => {
+                if (!response.ok) throw new Error("게시글을 찾을 수 없습니다.");
+                return response.json();
+            })
+            .then(board => {
+                document.getElementById("detail-title").value = board.title || "";
+                document.getElementById("detail-writer").value = board.writer || "";
+                document.getElementById("detail-content").value = board.content || "";
+                
+                currentBoardWriter = board.writer;
+                
+                renderFile(board.fileName);
+                checkOwnership();
+
+                const localData = JSON.parse(localStorage.getItem(countKey));
+                let likeCount = localData ? localData.like : (board.likeCount || 0);
+                let dislikeCount = localData ? localData.dislike : (board.dislikeCount || 0);
+
+                updateCountsUI(likeCount, dislikeCount);
+                restoreUserReactionUI();
+            })
+            .catch(error => {
+                console.error("데이터 로드 에러:", error);
+                const localData = JSON.parse(localStorage.getItem(countKey) || '{"like": 0, "dislike": 0}');
+                updateCountsUI(localData.like, localData.dislike);
+                restoreUserReactionUI();
+            });
+        }
+
+        //날짜/시간 포맷팅 함수 (YYYY. M. D. 오전/오후 HH:MM:SS)
+        function formatDate(dateInput) {
+            const date = new Date(dateInput);
+            if (isNaN(date.getTime())) {
+                return dateInput; // 예외 처리
+            }
+            return date.toLocaleString('ko-KR');
+        }
+
+        //전체 DOM을 재작성하지 않고 시간 텍스트만 실시간 갱신하는 함수
+        function updateRealtimeDates() {
+            const dateElements = document.querySelectorAll(".comment-date");
+            dateElements.forEach(el => {
+                const timestamp = el.getAttribute("data-timestamp");
+                if (timestamp) {
+                    el.innerText = formatDate(timestamp);
+                }
+            });
+        }
+
+        function getLoggedInUserId() {
+            const savedUser = localStorage.getItem("user");
+            if (!savedUser) return null;
+            
+            const user = JSON.parse(savedUser);
+            return user.userid || user.id || user.name || user.username || null;
+        }
+
+        function getLoggedInUserName() {
+            const savedUser = localStorage.getItem("user");
+            if (!savedUser) return null;
+            
+            const user = JSON.parse(savedUser);
+            return user.name || user.userid || user.username || user.id || null;
+        }
+
+        function checkLoginState() {
+            const savedUser = localStorage.getItem("user");
+            const authArea = document.getElementById("auth-area");
+
+            if (savedUser) {
+                const userName = getLoggedInUserName();
+
+                authArea.innerHTML = `
+                    <div class="user-nav-box">
+                        <span class="user-greeting">${userName}님 환영합니다!</span>
+                        <a onclick="handleLogout()" class="btn-logout-nav">로그아웃</a>
+                    </div>
+                `;
+            } else {
+                authArea.innerHTML = `<a href="/board/login.html">로그인</a>`;
+            }
+        }
+
+        function handleLogout() {
+            if (confirm("로그아웃 하시겠습니까?")) {
+                localStorage.removeItem("user");
+                alert("로그아웃 되었습니다.");
+                location.reload();
+            }
+        }
+
+        function getUserReactionKey() {
+            const userId = getLoggedInUserId();
+            return userId ? `reacted_board_${id}_${userId}` : null;
+        }
+
+        function renderFile(fileName) {
+            const fileArea = document.getElementById("file-area");
+            if (!fileName) {
+                fileArea.style.display = "none";
+                return;
+            }
+
+            const fileUrl = `/api/boards/files/${fileName}`;
+            const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(fileName);
+
+            fileArea.style.display = "inline-flex"; 
+            if (isImage) {
+                fileArea.innerHTML = `
+                    <img src="${fileUrl}" alt="첨부 이미지">
+                `;
+            } else {
+                fileArea.innerHTML = `
+                    <a href="${fileUrl}" download style="color: #007bff; text-decoration: underline; font-weight: bold; padding: 5px 10px;">
+                        ${fileName.substring(fileName.indexOf('_') + 1)} 다운로드하기
+                    </a>
+                `;
+            }
+        }
+
+        function isCurrentOwner() {
+            const savedUser = localStorage.getItem("user");
+            if (!savedUser || !currentBoardWriter) return false;
+
+            const user = JSON.parse(savedUser);
+            const possibleUserNames = [user.name, user.userid, user.username, user.id].filter(Boolean);
+
+            return possibleUserNames.includes(currentBoardWriter);
+        }
+
+        function checkOwnership() {
+            const titleInput = document.getElementById("detail-title");
+            const contentInput = document.getElementById("detail-content");
+
+            if (isCurrentOwner()) {
+                if (updateBoardBtn) updateBoardBtn.style.display = "inline-block";
+                if (deleteBoardBtn) deleteBoardBtn.style.display = "inline-block";
+                if (titleInput) titleInput.readOnly = false;
+                if (contentInput) contentInput.readOnly = false;
+            } else {
+                if (updateBoardBtn) updateBoardBtn.style.display = "none";
+                if (deleteBoardBtn) deleteBoardBtn.style.display = "none";
+                if (titleInput) titleInput.readOnly = true;
+                if (contentInput) contentInput.readOnly = true;
+            }
+        }
+
+        function sendReaction(type) {
+            const userId = getLoggedInUserId();
+
+            if (!userId) {
+                alert("로그인 후 이용 가능합니다.");
+                location.href = "/board/login.html";
+                return;
+            }
+
+            const reactionKey = getUserReactionKey();
+            const previousReaction = localStorage.getItem(reactionKey);
+
+            if (previousReaction === type) {
+                alert("이미 눌렀습니다..");
+                return;
+            }
+
+            let likeCount = parseInt(document.getElementById("like-count").innerText) || 0;
+            let dislikeCount = parseInt(document.getElementById("dislike-count").innerText) || 0;
+
+            if (previousReaction === "like" && type === "dislike") {
+                likeCount = Math.max(0, likeCount - 1);
+                dislikeCount += 1;
+            } else if (previousReaction === "dislike" && type === "like") {
+                dislikeCount = Math.max(0, dislikeCount - 1);
+                likeCount += 1;
+            } else {
+                if (type === "like") likeCount += 1;
+                if (type === "dislike") dislikeCount += 1;
+            }
+
+            updateCountsUI(likeCount, dislikeCount);
+
+            localStorage.setItem(reactionKey, type);
+            localStorage.setItem(countKey, JSON.stringify({ like: likeCount, dislike: dislikeCount }));
+            restoreUserReactionUI();
+
+            fetch(`/api/boards/${id}/${type}`, { method: "POST" }).catch(err => console.log("서버 전송 생략/오류"));
+        }
+
+        function updateCountsUI(like, dislike) {
+            const likeEl = document.getElementById("like-count");
+            const dislikeEl = document.getElementById("dislike-count");
+            if (likeEl) likeEl.innerText = like;
+            if (dislikeEl) dislikeEl.innerText = dislike;
+        }
+
+        function restoreUserReactionUI() {
+            const reactionKey = getUserReactionKey();
+            const currentReaction = reactionKey ? localStorage.getItem(reactionKey) : null;
+            
+            if (likeBtn) likeBtn.classList.remove("active");
+            if (dislikeBtn) dislikeBtn.classList.remove("active");
+
+            if (currentReaction === "like" && likeBtn) {
+                likeBtn.classList.add("active");
+            } else if (currentReaction === "dislike" && dislikeBtn) {
+                dislikeBtn.classList.add("active");
+            }
+        }
+
+        function updateBoard() {
+            if (!isCurrentOwner()) {
+                alert("작성자 본인만 수정할 수 있습니다.");
+                return;
+            }
+
+            const title = document.getElementById("detail-title").value;
+            
+            if (title.length > 62) {
+                alert("제목은 최대 62자까지만 입력 가능합니다.");
+                return;
+            }
+
+            const writer = document.getElementById("detail-writer").value;
+            const content = document.getElementById("detail-content").value;
+
+            fetch("/api/boards/" + id, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, writer, content })
+            })
+            .then(response => {
+                if(response.ok) {
+                    alert("수정 완료");
+                    location.href = "/board/list.html";
+                }
+            });
+        }
+
+        function deleteBoard() {
+            if (!isCurrentOwner()) {
+                alert("작성자 본인만 삭제할 수 있습니다.");
+                return;
+            }
+
+            if(!confirm("정말 삭제하시겠습니까?")) return;
+
+            fetch("/api/boards/" + id, { method: "DELETE" })
+            .then(response => {
+                if(response.ok) {
+                    alert("삭제 완료");
+                    location.href = "/board/list.html";
+                }
+            });
+        }
+
+        /* 댓글 영역 기능 */
+        function initCommentSection() {
+            const savedUser = localStorage.getItem("user");
+            const commentInput = document.getElementById("comment-input");
+            
+            if (!savedUser && commentInput) {
+                commentInput.placeholder = "로그인한 사용자만 댓글을 작성할 수 있습니다.";
+                commentInput.addEventListener("click", handleUnauthenticatedClick);
+            }
+        }
+
+        function handleUnauthenticatedClick() {
+            const savedUser = localStorage.getItem("user");
+            if (!savedUser) {
+                if (confirm("댓글 작성을 위해 로그인이 필요합니다. 로그인 페이지로 이동하시겠습니까?")) {
+                    location.href = "/board/login.html";
+                }
+            }
+        }
+
+        function setupDragAndDropAndPaste() {
+            const textarea = document.getElementById("comment-input");
+            if (!textarea) return;
+
+            textarea.addEventListener("dragover", (e) => {
+                e.preventDefault();
+                textarea.classList.add("dragover");
+            });
+
+            textarea.addEventListener("dragleave", (e) => {
+                e.preventDefault();
+                textarea.classList.remove("dragover");
+            });
+
+            textarea.addEventListener("drop", (e) => {
+                e.preventDefault();
+                textarea.classList.remove("dragover");
+
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    const file = e.dataTransfer.files[0];
+                    if (file.type.startsWith("image/")) {
+                        processImageFile(file);
+                    } else {
+                        alert("이미지 파일만 첨부할 수 있습니다.");
+                    }
+                }
+            });
+
+            textarea.addEventListener("paste", (e) => {
+                const items = (e.clipboardData || e.originalEvent.clipboardData).items;
+                for (let index in items) {
+                    const item = items[index];
+                    if (item.kind === 'file' && item.type.startsWith('image/')) {
+                        const blob = item.getAsFile();
+                        processImageFile(blob);
+                    }
+                }
+            });
+        }
+
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            if (files && files.length > 0) {
+                processImageFile(files[0]);
+            }
+        }
+
+        function processImageFile(file) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement("canvas");
+                    const MAX_WIDTH = 400;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    currentAttachedImageData = canvas.toDataURL("image/jpeg", 0.7);
+                    showPreviewImage(currentAttachedImageData);
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function showPreviewImage(src) {
+            const previewBox = document.getElementById("comment-img-preview");
+            const previewImg = document.getElementById("preview-img-src");
+            if (previewImg) previewImg.src = src;
+            if (previewBox) previewBox.style.display = "inline-block";
+        }
+
+        function clearAttachedImage() {
+            currentAttachedImageData = "";
+            const fileInput = document.getElementById("comment-file-input");
+            const previewBox = document.getElementById("comment-img-preview");
+            const previewImg = document.getElementById("preview-img-src");
+            
+            if (fileInput) fileInput.value = "";
+            if (previewBox) previewBox.style.display = "none";
+            if (previewImg) previewImg.src = "";
+        }
+
+        function addComment() {
+            const savedUser = localStorage.getItem("user");
+            
+            if (!savedUser) {
+                alert("로그인이 필요한 서비스입니다.");
+                location.href = "/board/login.html";
+                return;
+            }
+
+            const commentInput = document.getElementById("comment-input");
+            const content = commentInput ? commentInput.value.trim() : "";
+
+            if (!content && !currentAttachedImageData) {
+                alert("댓글 내용이나 짤을 입력해주세요.");
+                if (commentInput) commentInput.focus();
+                return;
+            }
+
+            const writer = getLoggedInUserName() || "익명";
+
+            const newComment = {
+                id: Date.now(),
+                writer: writer,
+                content: content,
+                image: currentAttachedImageData,
+                isEdited: false,
+                date: new Date().toISOString()
+            };
+
+            try {
+                const comments = getStoredComments();
+                comments.push(newComment);
+                localStorage.setItem(`comments_board_${id}`, JSON.stringify(comments));
+
+                if (commentInput) commentInput.value = "";
+                clearAttachedImage();
+                loadComments();
+            } catch(e) {
+                alert("저장 용량이 초과되었습니다. 이미지가 너무 큽니다.");
+            }
+        }
+
+        /* 댓글 수정 시작 로직 */
+        function editComment(commentId) {
+            const comments = getStoredComments();
+            const comment = comments.find(c => c.id === commentId);
+            if (!comment) return;
+
+            const contentEl = document.getElementById(`comment-content-${commentId}`);
+            const originalContent = comment.content;
+
+            if (contentEl) {
+                contentEl.innerHTML = `
+                    <div class="comment-edit-box">
+                        <textarea id="edit-input-${commentId}">${escapeHtml(originalContent)}</textarea>
+                        <div class="comment-edit-btn-group">
+                            <button class="btn-save-edit" onclick="saveEditComment(${commentId})">저장</button>
+                            <button class="btn-cancel-edit" onclick="loadComments()">취소</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        /* 댓글 수정 저장 로직 */
+        function saveEditComment(commentId) {
+            const editInput = document.getElementById(`edit-input-${commentId}`);
+            const newContent = editInput ? editInput.value.trim() : "";
+
+            if (!newContent) {
+                alert("수정할 내용을 입력해주세요.");
+                return;
+            }
+
+            let comments = getStoredComments();
+            const commentIndex = comments.findIndex(c => c.id === commentId);
+
+            if (commentIndex !== -1) {
+                comments[commentIndex].content = newContent;
+                comments[commentIndex].isEdited = true;
+                localStorage.setItem(`comments_board_${id}`, JSON.stringify(comments));
+            }
+
+            loadComments();
+        }
+
+        function deleteComment(commentId) {
+            if (!confirm("댓글을 삭제하시겠습니까?")) return;
+
+            let comments = getStoredComments();
+            comments = comments.filter(c => c.id !== commentId);
+            
+            localStorage.setItem(`comments_board_${id}`, JSON.stringify(comments));
+            loadComments();
+        }
+
+        function getStoredComments() {
+            const data = localStorage.getItem(`comments_board_${id}`);
+            return data ? JSON.parse(data) : [];
+        }
+
+        function loadComments() {
+            const comments = getStoredComments();
+            const commentListEl = document.getElementById("comment-list");
+            const commentCountEl = document.getElementById("comment-count");
+            const currentUserName = getLoggedInUserName();
+
+            if (commentCountEl) commentCountEl.innerText = comments.length;
+            if (!commentListEl) return;
+
+            commentListEl.innerHTML = "";
+
+            if (comments.length === 0) {
+                commentListEl.innerHTML = `<div style="text-align:center; color:#888; padding:20px 0;">첫 번째 댓글을 남겨보세요!</div>`;
+                return;
+            }
+
+            comments.forEach(comment => {
+                const isMyComment = currentUserName && (currentUserName === comment.writer);
+                const actionBtnsHtml = isMyComment 
+                    ? `<button class="btn-action-comment btn-edit-comment" onclick="editComment(${comment.id})">수정</button>` +
+                      `<button class="btn-action-comment btn-delete-comment" onclick="deleteComment(${comment.id})">삭제</button>` 
+                    : "";
+
+                const editedTagHtml = comment.isEdited ? `<span class="comment-edited-tag">(수정됨)</span>` : "";
+
+                // 이미지 URL 자동 변환
+                let parsedContent = escapeHtml(comment.content || "");
+                const imgRegex = /(https?:\/\/[^\s]+?\.(?:png|jpg|jpeg|gif|webp)(?:\?[^\s]*)?)/gi;
+                parsedContent = parsedContent.replace(imgRegex, '<br><img src="$1" class="comment-image-attached"><br>');
+
+                // 직접 첨부된 파일/클립보드 이미지 표시
+                let imageHtml = "";
+                if (comment.image) {
+                    imageHtml = `<img src="${comment.image}" class="comment-image-attached">`;
+                }
+
+                // 한국 표준 날짜/시간 포맷 생성
+                const formattedDate = formatDate(comment.date);
+
+                const item = document.createElement("div");
+                item.className = "comment-item";
+                item.innerHTML = `
+                    <div class="comment-header">
+                        <div>
+                            <span class="comment-writer">${escapeHtml(comment.writer)}</span>${editedTagHtml}
+                            ${actionBtnsHtml}
+                        </div>
+                        <span class="comment-date" data-timestamp="${comment.date}">${formattedDate}</span>
+                    </div>
+                    <div class="comment-content" id="comment-content-${comment.id}">${parsedContent}${imageHtml}</div>
+                `;
+                commentListEl.appendChild(item);
+            });
+        }
+
+        function escapeHtml(text) {
+            if (!text) return "";
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
