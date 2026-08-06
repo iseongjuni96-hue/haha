@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>할 일 목록</title>
+    
+    <style>
+        li.done {
+            color:green;
+            background-color: lightgreen;
+            text-decoration: line-through;
+        }
+    </style>
+</head>
+<body>
+    <h1> 할 일 목록</h1>
+    <input type="text" id="todo-input" placeholder="할 일 입력">
+    <button id="add-button">추가</button>
+    <ul id="todo-list"></ul>
+
+    <script>
+        const todos = [];
+        const todoInput = document.getElementById("todo-input");
+        const addButton = document.getElementById("add-button");
+        const todoList = document.getElementById("todo-list");
+
+        addButton.addEventListener("click", function () {
+            console.log("todoInput에 들어온 값" + todoInput.value);
+            const todo = todoInput.value;
+            if (todo === "" ) {
+                alert("할 일을 입력하세요.")
+                return;
+            }
+            todos.push(todo);
+            todoInput.value = ""; // 입략칭을 공백으로
+            render();
+        });
+
+        function render () {
+            let html = "";
+            todos.forEach(function(todo) {
+                html += `<li onclick="changeColor(this)">${todo}</li>`; //불록요소
+            });
+
+            todoList.innerHTML = html;
+        }
+
+        function changeColor(item) { //바뀐 부분(스타일/css 색상)
+            item.classList.toggle("done") //클래스가 없으면 초기화하고, 있으면 제거
+        }
+    </script>
+</body>
+</html>

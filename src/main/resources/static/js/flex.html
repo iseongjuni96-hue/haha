@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>명단 목록 객체 여러개</title>
+</head>
+<body>
+    <h1>게시글 목록</h1>
+    <div id="board-list"></div>
+
+    <script>
+        const boards = [
+            {
+                id:1,
+                title:"첫번쨰 글",
+                writer:"홍길동"
+            },{
+                id:2,
+                title:"자바 공부",
+                writer:"김자바"
+            },{
+                id:3,
+                title:"웹 프로젝트",
+                writer:"이학생"
+            }
+        ];
+
+        const boardList = document.getElementById("board-list");
+        console.log(boards);
+        function render () {
+            let html = "";
+            boards.forEach(function (board) {
+                html += `
+                     <strong>${board.id}</strong>
+                     <span></span>
+                `;
+            }) ;
+            boardList.innerHTML = html;
+        }
+        render();
+    </script>
+</body>
+</html>

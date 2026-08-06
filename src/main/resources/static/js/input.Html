@@ -1,0 +1,27 @@
+
+<!DOCTYPE html> 
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <title>입력값 가져오기</title>
+    </head>
+
+    <body>
+        <input type="text" id="name-input" placeholder="이름 입력">
+        <button id="hello-button">확인</button>
+        <p id="result"></p>
+
+        <script>
+            const nameinput= document.getElementById("name-input");
+            const helloButton= document.getElementById("hello-button")
+            const result= document.getElementById("result");
+
+            helloButton.addEventListener("클릭",function() {
+                const name = nameInput.value;
+                console.log(nameInput.value);
+
+                result.textContent = ` {name}님 안녕하세요`;
+            })
+        </script>
+    </body>
+</html>

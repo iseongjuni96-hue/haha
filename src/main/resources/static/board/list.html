@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+        }
+        nav {
+            padding: 25px 10px 15px 10px;
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+        }
+        nav a {
+            color: #333;
+            margin: 0 10px;
+            font-weight: bold;
+            background-color: rgb(247, 247, 247);
+            padding: 5px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-sizing: border-box;
+            display: inline-block;
+        }
+        nav a:hover {
+            background-color: bisque;
+        }
+        .user-nav-box {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-greeting {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .btn-logout-nav {
+            background-color: #dc3545 ;
+            color: white ;
+            margin: 0 ;
+        }
+        .btn-logout-nav:hover {
+            background-color: #c82333 ;
+        }
+
+        main {
+            width: 800px;
+            margin: 30px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* 검색창 영역 스타일 */
+        .search-box {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 15px;
+        }
+        .search-box select {
+            padding: 6px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+        }
+        .search-box input[type="text"] {
+            width: 220px;
+            padding: 6px 10px;
+            margin: 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .btn-search {
+            padding: 6px 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .btn-search:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border-bottom: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        tr:hover { background-color: #f1f1f1; cursor: pointer; }
+        .btn {
+            padding: 8px 16px;
+            background-color: #333;
+            color: white;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">홈(메인 페이지)</a>
+        <a href="/board/rule.html">규칙</a>
+        <a href="/board/list.html">게시판</a>
+        <a href="/board/write.html">글쓰기</a>
+        <span id="auth-area">
+            <a href="/board/login.html">로그인</a>
+        </span>
+    </nav>
+    <main>
+        <h1>게시판 목록</h1>
+
+        <!-- 검색 영역 추가 -->
+        <div class="search-box">
+            <select id="search-type">
+                <option value="all">전체</option>
+                <option value="title">제목</option>
+                <option value="writer">작성자</option>
+            </select>
+            <input type="text" id="search-keyword" placeholder="검색어를 입력하세요..." onkeyup="if(event.keyCode===13) searchBoards()">
+            <button type="button" class="btn-search" onclick="searchBoards()">검색</button>
+        </div>
+
+        <table>
+            <thead>
+            <tr>
+                <th>번호</th>
+                <th>제목</th>
+                <th>작성자</th>
+            </tr>
+            </thead>
+            <tbody id="board-list">
+                <tr>
+                    <td colspan="3">게시글 불러오는중...</td>
+                </tr>
+            </tbody>
+        </table>
+        <a class="btn" href="/board/write.html">글쓰기</a>
+    </main>
+
+    <script>
+        let allBoardsData = []; // 원본 데이터를 저장할 변수
+
+        document.addEventListener("DOMContentLoaded", function() {
+            checkLoginState();
+            fetchBoards();
+        });
+
+        function checkLoginState() {
+            const savedUser = localStorage.getItem("user");
+            const authArea = document.getElementById("auth-area");
+
+            if (savedUser) {
+                const user = JSON.parse(savedUser);
+                const userName = user.name || user.userid;
+
+                authArea.innerHTML = `
+                    <div class="user-nav-box">
+                        <span class="user-greeting">${userName}님 환영합니다!</span>
+                        <a onclick="handleLogout()" class="btn-logout-nav">로그아웃</a>
+                    </div>
+                `;
+            } else {
+                authArea.innerHTML = `<a href="/board/login.html">로그인</a>`;
+            }
+        }
+
+        function handleLogout() {
+            if (confirm("로그아웃 하시겠습니까?")) {
+                localStorage.removeItem("user");
+                alert("로그아웃 되었습니다.");
+                location.reload();
+            }
+        }
+
+        function fetchBoards() {
+            fetch("/api/boards")
+            .then(response => response.json())
+            .then(data => {
+                allBoardsData = data; // 전체 데이터 저장
+                renderBoardList(allBoardsData);
+            });
+        }
+
+        /* 목록을 화면에 그리는 전용 함수 */
+        function renderBoardList(boards) {
+            const list = document.getElementById("board-list");
+            list.innerHTML = "";
+            
+            if (!boards || boards.length === 0) {
+                list.innerHTML = '<tr><td colspan="3">등록된 글이 없습니다.</td></tr>';
+                return;
+            }
+
+            boards.forEach((board, index) => {
+                const now = document.createElement("tr");
+                now.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td onclick="goDetail(${board.id})">${escapeHtml(board.title)}</td>
+                    <td>${escapeHtml(board.writer)}</td>
+                `;
+                list.appendChild(now);
+            });
+        }
+
+        /* 검색 기능 */
+        function searchBoards() {
+            const type = document.getElementById("search-type").value;
+            const keyword = document.getElementById("search-keyword").value.trim().toLowerCase();
+
+            if (!keyword) {
+                renderBoardList(allBoardsData);
+                return;
+            }
+
+            const filtered = allBoardsData.filter(board => {
+                const titleMatch = board.title ? board.title.toLowerCase().includes(keyword) : false;
+                const writerMatch = board.writer ? board.writer.toLowerCase().includes(keyword) : false;
+
+                if (type === "title") return titleMatch;
+                if (type === "writer") return writerMatch;
+                return titleMatch || writerMatch; // 'all'인 경우
+            });
+
+            renderBoardList(filtered);
+        }
+
+        /* 특수문자 이스케이프 함수 */
+        function escapeHtml(text) {
+            if (!text) return "";
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+        
+        function goDetail(id) {
+            location.href = "/board/detail.html?id=" + id;
+        }
+    </script>
+</body>
+</html>

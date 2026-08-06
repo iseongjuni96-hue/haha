@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>규칙</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+        nav {
+            padding: 25px 10px 15px 10px;
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;
+        }
+        nav a {
+            color: #333;
+            margin: 0 10px;
+            font-weight: bold;
+            background-color: rgb(255, 255, 255);
+            padding: 5px 15px;
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+            box-sizing: border-box;
+            display: inline-block;
+        }
+        nav a:hover {
+            background-color: bisque;
+        }
+        .user-nav-box {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .user-greeting {
+            position: absolute;
+            top: -22px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+        }
+        .btn-logout-nav {
+            background-color: #dc3545 !important;
+            color: white !important;
+            margin: 0 !important;
+        }
+        .btn-logout-nav:hover {
+            background-color: #c82333 !important;
+        }
+
+        .about {
+            width: 100%;
+            height: 740px;
+            background-color: beige;
+            padding-top: 20px;
+            box-sizing: border-box;
+        }
+        h2, p {
+            text-align: center;
+        }
+        .link-box {
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <a href="/">홈(메인 페이지)</a>
+        <a href="/board/rule.html">규칙</a>
+        <a href="/board/list.html">게시판</a>
+        <a href="/board/write.html">글쓰기</a>
+        <span id="auth-area">
+            <a href="/board/login.html">로그인</a>
+        </span>
+    </nav>
+    <main>
+        <h2>규칙</h2>
+        <div class="about">
+            <p>욕설/비방</p>
+            <p>도배 금지</p>
+            <p>상호 존중</p>
+            <p>분란 유발 금지</p>
+            <p></p>
+        </div>
+        <div class="link-box">
+            <a href="/board/list.html">게시판으로 이동</a>
+        </div>
+    </main>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    checkLoginState();
+});
+
+function checkLoginState() {
+    const savedUser = localStorage.getItem("user");
+    const authArea = document.getElementById("auth-area");
+
+    if (savedUser) {
+        const user = JSON.parse(savedUser);
+        const userName = user.name || user.userid;
+
+        authArea.innerHTML = `
+            <div class="user-nav-box">
+                <span class="user-greeting">${userName}님 환영합니다!</span>
+                <a onclick="handleLogout()" class="btn-logout-nav">로그아웃</a>
+            </div>
+        `;
+    } else {
+        authArea.innerHTML = `<a href="/board/login.html">로그인</a>`;
+    }
+}
+
+function handleLogout() {
+    if (confirm("로그아웃 하시겠습니까?")) {
+        localStorage.removeItem("user");
+        alert("로그아웃 되었습니다.");
+        location.reload();
+    }
+}
+</script>
+</body>
+</html>

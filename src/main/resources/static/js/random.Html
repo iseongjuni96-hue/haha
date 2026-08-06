@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>점심 메뉴 추천</title>
+</head>
+<body>
+    <h1>오늘의 점심 메뉴</h1>
+    <button id="recommend-button">추천 받기</button>
+    <h2 id="result">무엇을 먹을까요?</h2>
+    <img id="menu-image" src="" alt="점심메뉴" style="display: none;" max width="300px">
+
+    <script>
+        const menus = [
+            {
+
+                name:"제육볶음",
+                image:"images/images1.png"
+            },
+            {
+                name:"한솥도시락",
+                image: "images/images.png"
+            },
+            {   
+                name:"햄버거",
+                image: "images/"
+
+            },
+            {   
+                name:"국밥",
+                image: "images/"
+
+            },
+            {   name:"돈까스",
+                image: "images/"
+            }
+        ];
+        const recommendButton = document.getElementById("recommend-button");
+        const result = document.getElementById("result");
+        const menuImage = document.getElementById("menu-image");
+
+
+        recommendButton.addEventListener("click",function() {
+            //실행할 함수 명령어(행동,동작)
+            render(); //render함수 실행
+        });
+
+        function render() {
+            //내장함수 Math.render() 콘솔창에 일력해보기
+            //Math.floor(Math.random()*10)
+            const randomNumber = Math.floor(Math.random()* menus.length);
+            //바뀐 부분 선택메뉴, 이미지
+            const selectedMenu = menus[randomNumber];
+            
+            result.textContent = selectedMenu.name;
+            menuImage.src= selectedMenu.image;
+            menuImage.alt = selectedMenu.name;
+            menuImage.style.display="block";
+        }
+    </script>
+</body>
+</html>
+

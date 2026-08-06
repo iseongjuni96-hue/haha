@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object 객체</title>
+</head>
+<body>
+    <h1>학생 정보</h1>
+    <button id="show-button">정보 보기</button>
+    <div id="result"></div>
+
+    <script>
+        const student = {
+            name: "홍길동",
+            age: 18,
+            score: 90
+        }
+        const showButton = document.getElementById("show-button")
+        const result = document.getElementById("result");
+        showButton.addEventListener("click",function () {
+            console.log(student.age);
+            render();
+        })
+
+        function render() {
+            result.innerHTML ="hihihi";
+            result.innerHTML = `
+               <p>이름: ${student.name}</p>
+               <p>나이: ${student.age}</p>
+               <p>점수: ${student.score}</p>
+            `;
+        }
+    </script>
+</body>
+</html>

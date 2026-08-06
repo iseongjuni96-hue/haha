@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>좋아요 / 싫어요</title>
+</head>
+<body>
+    <h1>좋아요 수</h1>
+    <button id="like-button">❤️좋아요</button>
+    <p id="like-count">0</p>
+
+    <h2>싫어요</h2>
+    <button id="dontlike-button">💔싫어요</button>
+    <p id="dontlike-count">0</p>
+
+    <script>
+         
+        let likeCountNum = 0;
+        let dontlikeCountNum = 0;
+
+        
+        const likeButton = document.getElementById("like-button");
+        const likeCount = document.getElementById("like-count");
+
+        const dontlikeButton = document.getElementById("dontlike-button");
+        const dontlikeCount = document.getElementById("dontlike-count");
+
+        
+        likeButton.addEventListener("click", function() {
+            likeCountNum++;
+            renderLike();
+        });
+
+        
+        dontlikeButton.addEventListener("click", function() {
+            dontlikeCountNum++;
+            renderDontLike();
+        });
+
+        function renderLike() {
+            likeCount.textContent = likeCountNum;
+        }
+
+        function renderDontLike() {
+            dontlikeCount.textContent = dontlikeCountNum;
+        }
+    </script>
+</body>
+</html>

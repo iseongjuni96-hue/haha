@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>자바스크립트 이벤트 </title>
+    <style>
+        #detail{
+            display: none;
+        }
+        button {
+            background-color: lightgreen;
+            border: 0;
+            padding: auto;
+        }
+        p {
+            color: rgb(115, 176, 197);
+            background-color: rgb(219, 250, 135);
+        }
+
+    </style>
+</head>
+<body>
+    <div>
+        <img src="../../static/js/images/images.png" width="300px"><br>
+        <button onclick="showDetail()" id="opne">상세 설명 보기</button>
+        <div id="detail">
+            <h2>한솥</h2>
+            <p>
+                한솥의 대한 설명 글 <br>
+                한솥(한솥도시락)은 가성비 좋은 가격, 빠른 서비스, 그리고 테이크아웃 중심의 운영으로 유명한 대한민국 1위의 대표 도시락 프랜차이즈 기업입니다. 
+            </p>
+            <button onclick="hideDetail()" id="close">싱세 보기 닫기</button>
+        </div>
+    </div>
+    <script>
+        function showDetail() {
+            document.querySelector('#detail').style.display="block";
+            document.querySelector('#open').style.display="none";
+        }
+        function hideDetail() {
+            document.querySelector('#detail').style.display="none";
+            document.querySelector('#open').style.display="block";
+        }
+    </script>
+</body>
+</html>

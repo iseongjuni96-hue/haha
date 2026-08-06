@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>과일 검색</title>
+</head>
+<body>
+    <h1>과일 검색</h1>
+    <input type="text" id="search-input" placeholder="과일 이름 입력">
+    <button id="search-button">검색</button>
+    <ul id="result"></ul>
+
+    <script>
+        const fruit =["사과","바나나","포도","딸기","수박"];
+        const searchInput = document.getElementById("search-input");
+        const searchButton = document.getElementById("search-button");
+        const result = document.getElementById("result");
+
+        searchButton=addEventListener("click", function () {
+            const keyword = searchInput.value;
+            const fillteredfruit=
+            fruit.filter(function (fruit) {
+                return fruit.includes(keyword);
+            })
+            render(fillteredfruit);
+        })
+        function render(item) {
+            let html = "";
+            item.forEach(function (item) {
+                html += `<li>${item}</li>`;
+            });
+            result.innerHTML =html;
+        }
+    </script>
+    
+</body>
+</html>

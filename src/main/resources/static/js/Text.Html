@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8">
+        <title>버튼 클릭</title>
+    </head>
+
+    <body>
+        <h1 id="message">버튼을 눌러주세요.</h1>
+        <button id="change-button">글자 바꾸기</button>
+        <script>
+             const message= document.getElementById("message");
+             const changeButton= document.getElementById("change-button");
+
+        changeButton.addEventListener("click",function() {
+            message.textContent = "버튼을 눌러서 바뀐 내용!"
+        })
+        </script>
+    </body>
+</html>
